@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.model.dao.LwModelDao">
+    
+	<sql id="lwModelColumns">
+		a.id AS "id",
+		a.modelname AS "modelname",
+		a.filename AS "filename",
+		a.filepath AS "filepath",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="lwModelJoins">
+	</sql>
+    
+	<select id="get" resultType="LwModel">
+		SELECT 
+			<include refid="lwModelColumns"/>
+		FROM lw_model a
+		<include refid="lwModelJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="LwModel">
+		SELECT 
+			<include refid="lwModelColumns"/>
+		FROM lw_model a
+		<include refid="lwModelJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="modelname != null and modelname != ''">
+				AND a.modelname LIKE 
+					<if test="dbName == 'oracle'">'%'||#{modelname}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{modelname}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{modelname},'%')</if>
+			</if>
+			<if test="filename != null and filename != ''">
+				AND a.filename LIKE 
+					<if test="dbName == 'oracle'">'%'||#{filename}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{filename}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{filename},'%')</if>
+			</if>
+			<if test="createBy != null and createBy != '' and createBy.id!=null and createBy.id!='' ">
+				and a.create_by= #{createBy.id}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="LwModel">
+		SELECT 
+			<include refid="lwModelColumns"/>
+		FROM lw_model a
+		<include refid="lwModelJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO lw_model(
+			id,
+			modelname,
+			filename,
+			filepath,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{modelname},
+			#{filename},
+			#{filepath},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE lw_model SET 	
+			modelname = #{modelname},
+			filename = #{filename},
+			filepath = #{filepath},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE lw_model SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

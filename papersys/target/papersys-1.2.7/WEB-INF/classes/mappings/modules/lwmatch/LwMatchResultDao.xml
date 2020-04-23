@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.lwmatch.dao.LwMatchResultDao">
+    
+	<sql id="lwMatchResultColumns">
+		a.id AS "id",
+		a.matchname AS "matchname",
+		a.modelname AS "modelname",
+		a.matchvalue AS "matchvalue",
+		a.result AS "result",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.tsvalue AS "tsvalue",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="lwMatchResultJoins">
+	</sql>
+    
+	<select id="get" resultType="LwMatchResult">
+		SELECT 
+			<include refid="lwMatchResultColumns"/>
+		FROM lw_match_result a
+		<include refid="lwMatchResultJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="LwMatchResult">
+		SELECT 
+			<include refid="lwMatchResultColumns"/>
+		FROM lw_match_result a
+		<include refid="lwMatchResultJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="createBy != null and createBy != '' and createBy.id!=null and createBy.id!='' ">
+				and a.create_by= #{createBy.id}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="LwMatchResult">
+		SELECT 
+			<include refid="lwMatchResultColumns"/>
+		FROM lw_match_result a
+		<include refid="lwMatchResultJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO lw_match_result(
+			id,
+			matchname,
+			modelname,
+			matchvalue,
+			result,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			tsvalue,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{matchname},
+			#{modelname},
+			#{matchvalue},
+			#{result},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{tsvalue},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE lw_match_result SET 	
+			matchname = #{matchname},
+			modelname = #{modelname},
+			matchvalue = #{matchvalue},
+			result = #{result},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			tsvalue = #{tsvalue},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE lw_match_result SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>
